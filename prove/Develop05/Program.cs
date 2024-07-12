@@ -54,6 +54,5 @@ class Program
             }
         }
 
-        Console.WriteLine("Exiting...");
     }
 }
