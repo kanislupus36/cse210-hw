@@ -1,7 +1,7 @@
 public class GoalManager
 {
     private List<Goal> _goals;
-    public int _score;
+    private int _score;
 
     public GoalManager()
     {
@@ -17,6 +17,8 @@ public class GoalManager
     public void DisplayPlayerInfo()
     {
         Console.WriteLine($"Current Score: {_score}");
+        Console.WriteLine("Press Enter to return to menu...");
+        Console.ReadLine();
     }
 
     public void ListGoalDetails()
@@ -26,6 +28,8 @@ public class GoalManager
         {
             Console.WriteLine($"Goal: {goal.GetDetailsString()}");
         }
+        Console.WriteLine("Press Enter to return to menu...");
+        Console.ReadLine();
     }
 
     public void CreateGoal()

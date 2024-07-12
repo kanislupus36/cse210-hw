@@ -6,7 +6,7 @@ public class SimpleGoal : Goal
 
     public override void RecordEvent()
     {
-        // Simple goals are completed immediately
+         Console.WriteLine($"Goal '{_shortName}' completed! You gained {_points} points.");
     }
 
     public override string GetDetailsString()

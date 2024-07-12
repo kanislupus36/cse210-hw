@@ -6,7 +6,7 @@ public class EternalGoal : Goal
 
     public override void RecordEvent()
     {
-        // Eternal goals are never completed
+        Console.WriteLine($"Recorded {_shortName}. You gained {_points} points.");
     }
 
     public override string GetDetailsString()

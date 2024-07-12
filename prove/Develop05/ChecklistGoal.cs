@@ -17,8 +17,7 @@ public class ChecklistGoal : Goal
         {
             // Add bonus points when target is reached
             // Access _score from GoalManager to update the score
-            GoalManager goalManager = new GoalManager();
-            goalManager._score += _bonus;
+            Console.WriteLine($"Congratulations! {_shortName} checklist completed. You earned an additional {_bonus} points.");
         }
     }
 
