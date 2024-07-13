@@ -1,4 +1,5 @@
 using System.IO;
+using System.Security.Permissions;
 public class GoalManager
 {
     private List<Goal> _goals;
@@ -23,6 +24,8 @@ public class GoalManager
     public void DisplayPlayerInfo()
     {
         Console.WriteLine($"Current Score: {_score}");
+        Console.WriteLine($"Level: {_currentLevel}");
+        Console.WriteLine($"Experience Points: {_experiencePoints}");
     }
 
     public void ListGoalDetails()
@@ -81,6 +84,8 @@ public class GoalManager
         if (goal != null)
             {
                 goal.RecordEvent(this);
+                CompleteGoal(goal);
+                Console.WriteLine($"Goal '{goalName}' completed! You earned {CalculateXPEarned(goal)} XP.");
             }
         else
             {
@@ -99,42 +104,47 @@ public class GoalManager
 
 
     public void SaveGoals()
+{
+    string fileName = "goals.txt";
+
+    try
     {
-        string filename = "goals.txt";
+        using (StreamWriter writer = new StreamWriter(fileName))
+        {
+            foreach (var goal in _goals)
+            {
+                if (goal is SimpleGoal simpleGoal)
+                {
+                    writer.WriteLine($"SimpleGoal;{simpleGoal._shortName};{simpleGoal._description};{simpleGoal._points}");
+                }
+                else if (goal is EternalGoal eternalGoal)
+                {
+                    writer.WriteLine($"EternalGoal;{eternalGoal._shortName};{eternalGoal._description};{eternalGoal._points}");
+                }
+                else if (goal is ChecklistGoal checklistGoal)
+                {
+                    writer.WriteLine($"ChecklistGoal;{checklistGoal._shortName};{checklistGoal._description};{checklistGoal._points};{checklistGoal.Target};{checklistGoal.Bonus}");
+                }
+            }
+        }
 
-        try
-            {
-                using (StreamWriter writer = new StreamWriter(filename))
-                    {
-                        foreach (var goal in _goals)
-                            {
-                                if (goal is ChecklistGoal checklistGoal)
-                                    {
-                                       // writer.WriteLine($"{goal.GetType().Name};{goal._shortName};{goal._description};{goal._points};{checklistGoal._target};{checklistGoal._bonus}");
-                                    }
-                                else
-                                    {
-                                        writer.WriteLine($"{goal.GetType().Name};{goal._shortName};{goal._description};{goal._points}");
-                                    }
-                            }
-                    }
-
-                Console.WriteLine("Goals saved successfully.");
-            }
-        catch (IOException ex)
-            {
-                Console.WriteLine($"Error saving goals: {ex.Message}");
-            }
-        catch (UnauthorizedAccessException ex)
-            {
-               Console.WriteLine($"Error saving goals: {ex.Message}. Check file permissions.");
-            }
-        finally
-            {
-               Console.WriteLine("Press Enter to return to menu...");
-               Console.ReadLine();
-            }
+        Console.WriteLine("Goals saved successfully.");
     }
+    catch (IOException ex)
+    {
+        Console.WriteLine($"Error saving goals: {ex.Message}");
+    }
+    catch (UnauthorizedAccessException ex)
+    {
+        Console.WriteLine($"Error saving goals: {ex.Message}. Check file permissions.");
+    }
+    finally
+    {
+        Console.WriteLine("Press Enter to return to menu...");
+        Console.ReadLine();
+    }
+}
+
 
 
     public void LoadGoals()
@@ -197,4 +207,53 @@ public class GoalManager
               Console.ReadLine();
             }
     }
+
+    private int _experiencePoints;
+    private int _currentLevel;
+    public int ExperiencePoints => _experiencePoints;
+    public int CurrentLevel => _currentLevel;
+
+    public void IncreaseExperiencePoints(int points)
+    {
+        _experiencePoints += points;
+        CheckLevelUp();
+    }
+
+    private void CheckLevelUp()
+    {
+        int experienceNeededForNextLevel = _currentLevel * 100;
+
+        if (_experiencePoints >= experienceNeededForNextLevel)
+        {
+            _currentLevel++;
+            Console.WriteLine($"Congratulations! You've reached Level {_currentLevel}!");
+        }
+    }
+
+    public void CompleteGoal(Goal goal)
+{
+    // Logic to mark goal as completed, update score, etc.
+    
+    int xpEarned = CalculateXPEarned(goal);
+    IncreaseExperiencePoints(xpEarned);
+}
+
+private int CalculateXPEarned(Goal goal)
+{
+    if (goal is SimpleGoal)
+    {
+        return 20; // Example XP for completing a SimpleGoal
+    }
+    else if (goal is EternalGoal)
+    {
+        return 30; // Example XP for completing an EternalGoal
+    }
+    else if (goal is ChecklistGoal checklistGoal)
+    {
+        // Example: Award XP based on progress towards completing checklist items
+        return 10 * checklistGoal.AmountCompleted;
+    }
+
+    return 0;
+}
 }
