@@ -1,3 +1,4 @@
+using System.IO;
 public class GoalManager
 {
     private List<Goal> _goals;
@@ -9,6 +10,11 @@ public class GoalManager
         _score = 0;
     }
 
+    public int GetScore()
+    {
+        return _score;
+    }
+
     public void Start()
     {
         Console.WriteLine("Welcome to Goal Tracker!");
@@ -17,8 +23,6 @@ public class GoalManager
     public void DisplayPlayerInfo()
     {
         Console.WriteLine($"Current Score: {_score}");
-        Console.WriteLine("Press Enter to return to menu...");
-        Console.ReadLine();
     }
 
     public void ListGoalDetails()
@@ -73,67 +77,124 @@ public class GoalManager
         Console.Write("Enter the name of the goal you completed: ");
         string goalName = Console.ReadLine().Trim();
 
-        Goal goal = _goals.FirstOrDefault(g => g.GetDetailsString() == goalName);
+        Goal goal = _goals.FirstOrDefault(g => g._shortName == goalName);
         if (goal != null)
-        {
-            goal.RecordEvent();
-            _score += int.Parse(goal._points);
-            Console.WriteLine($"Event recorded for {goalName}. You gained {goal._points} points.");
-        }
+            {
+                goal.RecordEvent(this);
+            }
         else
-        {
-            Console.WriteLine($"Goal '{goalName}' not found.");
-        }
+            {
+                Console.WriteLine($"Goal '{goalName}' not found.");
+            }
+
+        Console.WriteLine("Press Enter to return to menu...");
+        Console.ReadLine();
     }
+
+    public void IncreaseScore(int points)
+    {
+        _score += points;
+    }
+
+
 
     public void SaveGoals()
     {
-        using (StreamWriter writer = new StreamWriter("goals.txt"))
-        {
-            foreach (var goal in _goals)
-            {
-                writer.WriteLine($"{goal.GetType().Name};{goal._shortName};{goal._description};{goal._points}");
-            }
-        }
+        string filename = "goals.txt";
 
-        Console.WriteLine("Goals saved successfully.");
+        try
+            {
+                using (StreamWriter writer = new StreamWriter(filename))
+                    {
+                        foreach (var goal in _goals)
+                            {
+                                if (goal is ChecklistGoal checklistGoal)
+                                    {
+                                       // writer.WriteLine($"{goal.GetType().Name};{goal._shortName};{goal._description};{goal._points};{checklistGoal._target};{checklistGoal._bonus}");
+                                    }
+                                else
+                                    {
+                                        writer.WriteLine($"{goal.GetType().Name};{goal._shortName};{goal._description};{goal._points}");
+                                    }
+                            }
+                    }
+
+                Console.WriteLine("Goals saved successfully.");
+            }
+        catch (IOException ex)
+            {
+                Console.WriteLine($"Error saving goals: {ex.Message}");
+            }
+        catch (UnauthorizedAccessException ex)
+            {
+               Console.WriteLine($"Error saving goals: {ex.Message}. Check file permissions.");
+            }
+        finally
+            {
+               Console.WriteLine("Press Enter to return to menu...");
+               Console.ReadLine();
+            }
     }
+
 
     public void LoadGoals()
     {
         _goals.Clear();
 
-        using (StreamReader reader = new StreamReader("goals.txt"))
-        {
-            string line;
-            while ((line = reader.ReadLine()) != null)
+        string filename = "goals.txt";
+
+        try
             {
-                string[] parts = line.Split(';');
-                string type = parts[0];
-                string name = parts[1];
-                string description = parts[2];
-                string points = parts[3];
+                if (File.Exists(filename))
+                    {
+                        string[] lines = File.ReadAllLines(filename);
 
-                switch (type.ToLower())
-                {
-                    case "simplegoal":
-                        _goals.Add(new SimpleGoal(name, description, points));
-                        break;
-                    case "eternalgoal":
-                        _goals.Add(new EternalGoal(name, description, points));
-                        break;
-                    case "checklistgoal":
-                        int target = int.Parse(parts[4]);
-                        int bonus = int.Parse(parts[5]);
-                        _goals.Add(new ChecklistGoal(name, description, points, target, bonus));
-                        break;
-                    default:
-                        Console.WriteLine($"Unknown goal type '{type}'. Skipping.");
-                        break;
-                }
+                        foreach (string line in lines)
+                            {
+                                string[] parts = line.Split(';');
+                                string type = parts[0];
+                                string name = parts[1];
+                                string description = parts[2];
+                                string points = parts[3];
+
+                                switch (type.ToLower())
+                                    {
+                                        case "simplegoal":
+                                            _goals.Add(new SimpleGoal(name, description, points));
+                                            break;
+                                        case "eternalgoal":
+                                            _goals.Add(new EternalGoal(name, description, points));
+                                            break;
+                                        case "checklistgoal":
+                                            int target = int.Parse(parts[4]);
+                                            int bonus = int.Parse(parts[5]);
+                                            _goals.Add(new ChecklistGoal(name, description, points, target, bonus));
+                                            break;
+                                        default:
+                                            Console.WriteLine($"Unknown goal type '{type}'. Skipping.");
+                                            break;
+                                    }
+                            }
+
+                        Console.WriteLine("Goals loaded successfully.");
+                    }
+                else
+                    {
+                        Console.WriteLine("No goals file found.");
+                    }
             }
-        }
-
-        Console.WriteLine("Goals loaded successfully.");
+        catch (IOException ex)
+            {
+               Console.WriteLine($"Error loading goals: {ex.Message}");
+            }
+        catch (UnauthorizedAccessException ex)
+            {
+              Console.WriteLine($"Error loading goals: {ex.Message}. Check file permissions.");
+            }
+        finally
+            {
+              Console.WriteLine("Press Enter to return to menu...");
+              Console.ReadLine();
+            }
     }
 }

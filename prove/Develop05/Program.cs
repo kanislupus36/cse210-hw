@@ -13,14 +13,14 @@ class Program
         bool exitRequested = false;
         while (!exitRequested)
         {
+            goalManager.DisplayPlayerInfo();
             Console.WriteLine("\n--- Goal Tracker Menu ---");
-            Console.WriteLine("1. Display Player Info");
+            Console.WriteLine("1. Create New Goal");
             Console.WriteLine("2. List Goals");
-            Console.WriteLine("3. Create New Goal");
-            Console.WriteLine("4. Record Event");
-            Console.WriteLine("5. Save Goals");
-            Console.WriteLine("6. Load Goals");
-            Console.WriteLine("7. Exit");
+            Console.WriteLine("3. Save Goals");
+            Console.WriteLine("4. Load Goals");
+            Console.WriteLine("5. Record Event");
+            Console.WriteLine("6. Exit");
 
             Console.Write("Select an option: ");
             string input = Console.ReadLine().Trim();
@@ -28,24 +28,21 @@ class Program
             switch (input)
             {
                 case "1":
-                    goalManager.DisplayPlayerInfo();
+                    goalManager.CreateGoal();
                     break;
                 case "2":
                     goalManager.ListGoalDetails();
                     break;
                 case "3":
-                    goalManager.CreateGoal();
-                    break;
-                case "4":
-                    goalManager.RecordEvent();
-                    break;
-                case "5":
                     goalManager.SaveGoals();
                     break;
-                case "6":
+                case "4":
                     goalManager.LoadGoals();
                     break;
-                case "7":
+                case "5":
+                    goalManager.RecordEvent();
+                    break;
+                case "6":
                     exitRequested = true;
                     break;
                 default:

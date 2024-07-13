@@ -11,10 +11,12 @@ public class Goal
         _points = points;
     }
 
-    public virtual void RecordEvent()
-    {
-        // Implemented in derived classes
-    }
+    public virtual void RecordEvent(GoalManager manager)
+{
+    // Basic implementation; should be overridden in derived classes
+    Console.WriteLine($"Event recorded for {_shortName}. You gained {_points} points.");
+}
+
 
     public virtual string GetDetailsString()
     {

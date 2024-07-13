@@ -10,19 +10,29 @@ public class ChecklistGoal : Goal
         _bonus = bonus;
     }
 
-    public override void RecordEvent()
+    public override void RecordEvent(GoalManager manager)
+{
+    _amountCompleted++;
+    Console.WriteLine($"Event recorded for {_shortName}. You gained {_points} points.");
+    manager.IncreaseScore(int.Parse(_points));
+
+    if (_amountCompleted == _target)
     {
-        _amountCompleted++;
-        if (_amountCompleted == _target)
-        {
-            // Add bonus points when target is reached
-            // Access _score from GoalManager to update the score
-            Console.WriteLine($"Congratulations! {_shortName} checklist completed. You earned an additional {_bonus} points.");
-        }
+        Console.WriteLine($"Congratulations! {_shortName} checklist completed. You earned an additional {_bonus} points.");
+        manager.IncreaseScore(_bonus);
     }
+}
 
     public override string GetDetailsString()
+{
+    if (_amountCompleted >= _target)
+    {
+        return $"[X] {_shortName}: {_description} (Completed {_amountCompleted}/{_target} times)";
+    }
+    else
     {
         return $"[ ] {_shortName}: {_description} (Completed {_amountCompleted}/{_target} times)";
     }
+}
+
 }

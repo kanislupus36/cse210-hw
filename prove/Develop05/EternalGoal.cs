@@ -4,13 +4,14 @@ public class EternalGoal : Goal
     {
     }
 
-    public override void RecordEvent()
-    {
-        Console.WriteLine($"Recorded {_shortName}. You gained {_points} points.");
-    }
+    public override void RecordEvent(GoalManager manager)
+{
+    Console.WriteLine($"Recorded {_shortName}. You gained {_points} points.");
+    manager.IncreaseScore(int.Parse(_points));
+}
 
     public override string GetDetailsString()
     {
-        return $"[ ] {_shortName}: {_description}";
+        return $"{_shortName}: {_description}";
     }
 }
